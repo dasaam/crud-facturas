@@ -8,12 +8,20 @@ Proyecto de facturación con:
 
 ## Requisitos
 
-- Docker Desktop (o Docker Engine + Compose plugin)
+- Docker Engine
 - Git
+- Composer (requerido si harás `composer install` local)
+- PHP 8.4+
 
 ## Configuración Rápida (Sail)
 
-1. Clonar e ingresar al proyecto.
+1. Clonar e ingresar al proyecto:
+
+```bash
+git clone https://github.com/dasaam/crud-facturas.git
+cd crud-facturas
+```
+
 2. Instalar dependencias de PHP:
 
 ```bash
@@ -26,14 +34,26 @@ composer install
 cp .env.example .env
 ```
 
-4. Verificar puertos en `.env` (ya configurados para evitar conflictos comunes):
-- `APP_PORT=9001`
-- `VITE_PORT=5175`
-- `FORWARD_DB_PORT=3308`
-- `DB_HOST=mysql`
-- `DB_PORT=3306`
-- `WWWUSER=1000`
-- `WWWGROUP=1000`
+4. Agrega esta configuración en `.env`:
+
+```env
+APP_PORT=9001
+
+VITE_PORT=5175
+
+FORWARD_DB_PORT=3308
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=crud_facturas
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+WWWUSER=1000
+WWWGROUP=1000
+```
+
 
 5. Levantar contenedores:
 
@@ -58,7 +78,10 @@ cp .env.example .env
 ## Accesos
 
 - Web: `http://localhost:9001`
+- Login: `http://localhost:9001/login`
 - API base: `http://localhost:9001/api/v1`
+
+![Pantalla de login](./login.png)
 
 Usuario administrador por defecto:
 - Email: `admin@facturas.local`
@@ -92,15 +115,9 @@ Reset completo (incluye volumen de MySQL):
 ./vendor/bin/sail artisan migrate:fresh --seed
 ```
 
-Ver logs:
-
-```bash
-./vendor/bin/sail logs -f
-```
-
 ## API (resumen)
 
-Login (sin token):
+Login:
 - `POST /api/v1/login`
 
 Con `Bearer token`:
@@ -113,23 +130,3 @@ Con `Bearer token`:
 - `PUT /api/v1/facturas/{id}`
 - `PATCH /api/v1/facturas/{id}/facturar`
 - `PATCH /api/v1/facturas/{id}/cancelar`
-
-## Troubleshooting
-
-1. Puerto ocupado:
-- Cambia en `.env`: `APP_PORT`, `VITE_PORT`, `FORWARD_DB_PORT`.
-- Reinicia: `./vendor/bin/sail down && ./vendor/bin/sail up -d`.
-
-2. Error de permisos (`EACCES` en npm o `public/hot`):
-- No uses `sudo` con comandos de Sail.
-- Verifica `WWWUSER=1000` y `WWWGROUP=1000`.
-- Si hace falta:
-
-```bash
-sudo chown -R $USER:$USER .
-./vendor/bin/sail down
-./vendor/bin/sail up -d
-```
-
-3. Docker apagado:
-- Inicia Docker Desktop y vuelve a ejecutar `./vendor/bin/sail up -d`.
