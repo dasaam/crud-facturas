@@ -10,7 +10,7 @@ Proyecto de facturación con:
 
 - Docker Engine
 - Git
-- Composer (requerido si harás `composer install` local)
+- Composer
 - PHP 8.4+
 
 ## Configuración Rápida (Sail)
