@@ -1,55 +1,9 @@
 import DangerButton from '@/Components/DangerButton';
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
-function formatearMoneda(cantidad) {
-    return new Intl.NumberFormat('es-MX', {
-        style: 'currency',
-        currency: 'MXN',
-    }).format(cantidad ?? 0);
-}
-
-const opcionesEstado = [
-    { valor: '', etiqueta: 'Todos' },
-    { valor: 'borrador', etiqueta: 'Borrador' },
-    { valor: 'emitida', etiqueta: 'Emitida' },
-    { valor: 'pagada', etiqueta: 'Pagada' },
-    { valor: 'cancelada', etiqueta: 'Cancelada' },
-];
-
-const opcionesCantidadPorPagina = ['10', '15', '25', '50'];
-
-export default function Index({ facturasPaginadas, clientes, filtros }) {
-    const { data, setData, get, processing } = useForm({
-        filtroBusqueda: filtros.filtroBusqueda ?? '',
-        filtroEstado: filtros.filtroEstado ?? '',
-        filtroClienteId: filtros.filtroClienteId ?? '',
-        cantidadPorPagina: filtros.cantidadPorPagina ?? '10',
-    });
-
-    const submit = (evento) => {
-        evento.preventDefault();
-        get(route('facturas.index'), {
-            preserveState: true,
-            preserveScroll: true,
-        });
-    };
-
-    const limpiarFiltros = () => {
-        const filtrosLimpios = {
-            filtroBusqueda: '',
-            filtroEstado: '',
-            filtroClienteId: '',
-            cantidadPorPagina: data.cantidadPorPagina || '10',
-        };
-
-        setData(filtrosLimpios);
-        router.get(route('facturas.index'), filtrosLimpios, {
-            preserveState: true,
-            preserveScroll: true,
-        });
-    };
+export default function Index({ facturasPaginadas }) {
 
     const cancelarFactura = (idFactura, folioFactura) => {
         const usuarioConfirmo = window.confirm(
@@ -92,97 +46,6 @@ export default function Index({ facturasPaginadas, clientes, filtros }) {
 
             <div className="py-8">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                    <div className="rounded-lg bg-white p-4 shadow sm:p-6">
-                        <form onSubmit={submit} className="grid gap-4 md:grid-cols-5">
-                            <div className="md:col-span-2">
-                                <label className="text-sm font-medium text-gray-700">
-                                    Buscar
-                                </label>
-                                <input
-                                    type="text"
-                                    value={data.filtroBusqueda}
-                                    onChange={(evento) =>
-                                        setData('filtroBusqueda', evento.target.value)
-                                    }
-                                    placeholder="Folio o cliente"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">
-                                    Estado
-                                </label>
-                                <select
-                                    value={data.filtroEstado}
-                                    onChange={(evento) =>
-                                        setData('filtroEstado', evento.target.value)
-                                    }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                >
-                                    {opcionesEstado.map((opcionEstado) => (
-                                        <option
-                                            key={opcionEstado.valor || 'todos'}
-                                            value={opcionEstado.valor}
-                                        >
-                                            {opcionEstado.etiqueta}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">
-                                    Cliente
-                                </label>
-                                <select
-                                    value={data.filtroClienteId}
-                                    onChange={(evento) =>
-                                        setData('filtroClienteId', evento.target.value)
-                                    }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                >
-                                    <option value="">Todos</option>
-                                    {clientes.map((cliente) => (
-                                        <option key={cliente.id} value={cliente.id}>
-                                            {cliente.razonSocial}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-sm font-medium text-gray-700">
-                                    Por página
-                                </label>
-                                <select
-                                    value={data.cantidadPorPagina}
-                                    onChange={(evento) =>
-                                        setData('cantidadPorPagina', evento.target.value)
-                                    }
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                >
-                                    {opcionesCantidadPorPagina.map((opcion) => (
-                                        <option key={opcion} value={opcion}>
-                                            {opcion}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="md:col-span-5 flex gap-3">
-                                <PrimaryButton disabled={processing}>Aplicar filtros</PrimaryButton>
-                                <button
-                                    type="button"
-                                    onClick={limpiarFiltros}
-                                    className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-700 shadow-sm transition hover:bg-gray-50"
-                                >
-                                    Limpiar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
                     <div className="overflow-hidden rounded-lg bg-white shadow">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
@@ -232,7 +95,7 @@ export default function Index({ facturasPaginadas, clientes, filtros }) {
                                                 {factura.fechaEmision}
                                             </td>
                                             <td className="px-4 py-3 text-sm text-gray-700">
-                                                {formatearMoneda(factura.total)}
+                                                {factura.total}
                                             </td>
                                             <td className="px-4 py-3 text-sm">
                                                 <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold uppercase text-gray-700">
