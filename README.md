@@ -1,59 +1,135 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# CRUD Facturas (Laravel 12 + Breeze + Inertia React)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Proyecto de facturación con:
+- Laravel 12
+- Breeze con Inertia + React
+- API REST versionada (`/api/v1`)
+- Docker con Laravel Sail
 
-## About Laravel
+## Requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Docker Desktop (o Docker Engine + Compose plugin)
+- Git
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Configuración Rápida (Sail)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Clonar e ingresar al proyecto.
+2. Instalar dependencias de PHP:
 
-## Learning Laravel
+```bash
+composer install
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+3. Copiar entorno:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+cp .env.example .env
+```
 
-## Laravel Sponsors
+4. Verificar puertos en `.env` (ya configurados para evitar conflictos comunes):
+- `APP_PORT=9001`
+- `VITE_PORT=5175`
+- `FORWARD_DB_PORT=3308`
+- `DB_HOST=mysql`
+- `DB_PORT=3306`
+- `WWWUSER=1000`
+- `WWWGROUP=1000`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+5. Levantar contenedores:
 
-### Premium Partners
+```bash
+./vendor/bin/sail up -d
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+6. Generar key, migrar y sembrar datos:
 
-## Contributing
+```bash
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+7. Instalar frontend y ejecutar Vite:
 
-## Code of Conduct
+```bash
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Accesos
 
-## Security Vulnerabilities
+- Web: `http://localhost:9001`
+- API base: `http://localhost:9001/api/v1`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Usuario administrador por defecto:
+- Email: `admin@facturas.local`
+- Password: `admin12345`
 
-## License
+## Comandos Útiles Sail
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Arrancar:
+
+```bash
+./vendor/bin/sail up -d
+```
+
+Detener (sin borrar contenedores):
+
+```bash
+./vendor/bin/sail stop
+```
+
+Detener y remover contenedores/red:
+
+```bash
+./vendor/bin/sail down
+```
+
+Reset completo (incluye volumen de MySQL):
+
+```bash
+./vendor/bin/sail down -v --remove-orphans
+./vendor/bin/sail up -d --build
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+
+Ver logs:
+
+```bash
+./vendor/bin/sail logs -f
+```
+
+## API (resumen)
+
+Login (sin token):
+- `POST /api/v1/login`
+
+Con `Bearer token`:
+- `POST /api/v1/logout`
+- `GET /api/v1/clientes`
+- `GET /api/v1/productos`
+- `GET /api/v1/facturas`
+- `POST /api/v1/facturas`
+- `GET /api/v1/facturas/{id}`
+- `PUT /api/v1/facturas/{id}`
+- `PATCH /api/v1/facturas/{id}/facturar`
+- `PATCH /api/v1/facturas/{id}/cancelar`
+
+## Troubleshooting
+
+1. Puerto ocupado:
+- Cambia en `.env`: `APP_PORT`, `VITE_PORT`, `FORWARD_DB_PORT`.
+- Reinicia: `./vendor/bin/sail down && ./vendor/bin/sail up -d`.
+
+2. Error de permisos (`EACCES` en npm o `public/hot`):
+- No uses `sudo` con comandos de Sail.
+- Verifica `WWWUSER=1000` y `WWWGROUP=1000`.
+- Si hace falta:
+
+```bash
+sudo chown -R $USER:$USER .
+./vendor/bin/sail down
+./vendor/bin/sail up -d
+```
+
+3. Docker apagado:
+- Inicia Docker Desktop y vuelve a ejecutar `./vendor/bin/sail up -d`.
