@@ -13,6 +13,48 @@ Proyecto de facturación con:
 - Composer
 - PHP 8.4+
 
+## Modo nativo / Restaurar desde archivo (sin Docker)
+
+> Nota para este equipo: **Sail NO funciona si el proyecto vive en `/var/www/html`**, porque Docker Desktop (Linux) solo comparte la carpeta `/home`. Para Sail, el proyecto debe estar bajo `/home`. La forma probada y recomendada aquí es **nativa**.
+
+Importante: Laravel 12 requiere **PHP ≥ 8.2**. Si tu `php` por defecto es 8.1, invoca PHP 8.4 explícitamente (incluido al correr Composer).
+
+Pasos para revivir el proyecto archivado desde cero (si se borraron `vendor/` y `node_modules/`):
+
+```bash
+# 1. Dependencias PHP (correr Composer con PHP 8.4, NO el 8.1 por defecto)
+php8.4 $(which composer) install
+
+# 2. Dependencias y build del frontend (Vite/React)
+npm install
+npm run build          # genera public/build ; usa 'npm run dev' si vas a editar el front
+
+# 3. Restaurar la base de datos desde el dump incluido
+mysql -uroot -p crud_facturas < crud_facturas.sql
+#   (si la base no existe: CREATE DATABASE crud_facturas; antes de importar)
+
+# 4. Levantar la app
+php8.4 -dxdebug.mode=off artisan serve --port=8085
+```
+
+Configuración de `.env` para modo nativo (apunta a tu MySQL local, no a Docker):
+
+```env
+APP_PORT=8000
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=crud_facturas
+DB_USERNAME=root
+DB_PASSWORD=<tu_password_mysql_local>
+```
+
+Accesos en modo nativo:
+- Web: `http://127.0.0.1:8085`
+- Login: `http://127.0.0.1:8085/login`  ·  Usuario: `admin@facturas.local` / `admin12345`
+- API base: `http://127.0.0.1:8085/api/v1`
+
+---
+
 ## Configuración Rápida (Sail)
 
 1. Clonar e ingresar al proyecto:
